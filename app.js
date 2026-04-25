@@ -403,13 +403,22 @@
     overlay.innerHTML = `
       <div class="char-modal">
         <button class="char-modal-close">✕</button>
-        <div class="char-modal-char ${type}">${charData.char}</div>
+        
+        <!-- Writing Animation Target -->
+        <div id="writing-target-container">
+           <div id="character-target-div"></div>
+        </div>
+        
         <div class="char-modal-romaji">${charData.romaji}</div>
         
-        <div style="margin-bottom: 1rem;">
+        <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
           <button class="btn-primary btn-sm" id="btn-modal-speak">
             <i data-lucide="volume-2"></i>
-            Dengarkan
+            Suara
+          </button>
+          <button class="btn-secondary btn-sm" id="btn-modal-animate">
+            <i data-lucide="play"></i>
+            Animate
           </button>
         </div>
 
@@ -452,19 +461,43 @@
     // Speak button
     $('#btn-modal-speak', overlay).addEventListener('click', () => speak(charData.char));
 
-    // Close events
+    // Handle Closing
     const close = () => {
       overlay.style.animation = 'none';
       overlay.style.opacity = '0';
       setTimeout(() => overlay.remove(), 200);
     };
+    
     overlay.querySelector('.char-modal-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) close();
     });
+
+    // Stroke Animation
+    let writer;
+    const initWriter = () => {
+      const container = $('#character-target-div', overlay);
+      if (!container) return;
+      container.innerHTML = '';
+      writer = HanziWriter.create('character-target-div', charData.char, {
+        width: 150,
+        height: 150,
+        padding: 5,
+        strokeAnimationSpeed: 1,
+        delayBetweenStrokes: 150,
+        strokeColor: '#9ece6a',
+        outlineColor: '#262c3d'
+      });
+      writer.animateCharacter();
+    };
+
+    $('#btn-modal-animate', overlay).addEventListener('click', () => {
+      if (writer) writer.animateCharacter();
+    });
     
-    // Initialize Lucide icons for modal
+    // Initialize icons and writer
     if (window.lucide) lucide.createIcons();
+    setTimeout(initWriter, 100);
 
     document.addEventListener('keydown', function escHandler(e) {
       if (e.key === 'Escape') {
