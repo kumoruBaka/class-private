@@ -94,11 +94,14 @@
       container.className = 'toast-container';
       document.body.appendChild(container);
     }
-    const icons = { success: '✓', error: '✗', info: '◈' };
+    const icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<span class="toast-icon">${icons[type] || '◈'}</span><span>${message}</span>`;
+    toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}" class="toast-icon"></i><span>${message}</span>`;
     container.appendChild(toast);
+    
+    // Initialize icons for the new toast
+    if (window.lucide) lucide.createIcons();
     setTimeout(() => {
       toast.classList.add('fade-out');
       setTimeout(() => toast.remove(), 300);
@@ -161,7 +164,7 @@
         <button class="day-nav-link ${state.completedDays.has(day.day) ? 'completed' : ''}" data-day="${day.day}" id="nav-day-${day.day}">
           <span class="day-badge">${day.day}</span>
           <span class="day-nav-title">Hari ${day.day}</span>
-          <span class="day-check">✓</span>
+          <i data-lucide="check" class="day-check"></i>
         </button>
       </li>
     `).join('');
@@ -248,7 +251,7 @@
         <!-- Hiragana Section -->
         <div class="char-section">
           <h2 class="section-title">
-            <span class="section-icon hiragana">あ</span>
+            <span class="section-icon hiragana"><i data-lucide="languages"></i></span>
             Hiragana
           </h2>
           <div class="char-grid" id="hiragana-grid-${data.day}">
@@ -256,10 +259,10 @@
               const isMastered = state.masteredChars.has(h.char);
               return `
               <div class="char-card hiragana ${isMastered ? 'mastered' : ''}" data-type="hiragana" data-index="${i}" data-day="${data.day}" data-char="${h.char}">
-                ${isMastered ? '<div class="master-badge">✓</div>' : ''}
+                ${isMastered ? '<div class="master-badge"><i data-lucide="check"></i></div>' : ''}
                 <div class="char-main">${h.char}</div>
                 <div class="char-romaji">${h.romaji}</div>
-                <button class="btn-voice" title="Dengarkan Suara">🔊</button>
+                <button class="btn-voice" title="Dengarkan Suara"><i data-lucide="volume-2"></i></button>
               </div>
               `;
             }).join('')}
@@ -269,7 +272,7 @@
         <!-- Katakana Section -->
         <div class="char-section">
           <h2 class="section-title">
-            <span class="section-icon katakana">ア</span>
+            <span class="section-icon katakana"><i data-lucide="type"></i></span>
             Katakana
           </h2>
           <div class="char-grid" id="katakana-grid-${data.day}">
@@ -277,10 +280,10 @@
               const isMastered = state.masteredChars.has(k.char);
               return `
               <div class="char-card katakana ${isMastered ? 'mastered' : ''}" data-type="katakana" data-index="${i}" data-day="${data.day}" data-char="${k.char}">
-                ${isMastered ? '<div class="master-badge">✓</div>' : ''}
+                ${isMastered ? '<div class="master-badge"><i data-lucide="check"></i></div>' : ''}
                 <div class="char-main">${k.char}</div>
                 <div class="char-romaji">${k.romaji}</div>
-                <button class="btn-voice" title="Dengarkan Suara">🔊</button>
+                <button class="btn-voice" title="Dengarkan Suara"><i data-lucide="volume-2"></i></button>
               </div>
               `;
             }).join('')}
@@ -290,7 +293,7 @@
         <!-- Vocabulary Section -->
         <div class="char-section">
           <h2 class="section-title">
-            <span class="section-icon vocab">📖</span>
+            <span class="section-icon vocab"><i data-lucide="book-open"></i></span>
             Kosakata Hari Ini (${data.vocabulary.length} kata)
           </h2>
           <div class="vocab-grid">
@@ -308,13 +311,16 @@
         <!-- Day Actions -->
         <div class="day-actions">
           <button class="btn-primary" id="btn-start-quiz" data-day="${data.day}">
-            <span>🎮 Kuis Membaca</span>
+            <i data-lucide="gamepad-2"></i>
+            <span>Kuis Membaca</span>
           </button>
           <button class="btn-secondary" id="btn-start-writing" data-day="${data.day}">
-            <span>✍️ Latihan Menulis</span>
+            <i data-lucide="pen-tool"></i>
+            <span>Latihan Menulis</span>
           </button>
           <button class="btn-secondary btn-success" id="btn-complete-day" data-day="${data.day}" ${isCompleted ? 'disabled style="opacity:0.5"' : ''}>
-            <span>${isCompleted ? '✓ Sudah Selesai' : '✓ Tandai Selesai'}</span>
+            <i data-lucide="check-circle-2"></i>
+            <span>${isCompleted ? 'Sudah Selesai' : 'Tandai Selesai'}</span>
           </button>
         </div>
 
@@ -328,6 +334,9 @@
 
     // Bind events
     bindDayViewEvents(data);
+
+    // Initialize Lucide icons
+    if (window.lucide) lucide.createIcons();
   };
 
   const bindDayViewEvents = (data) => {
@@ -398,7 +407,10 @@
         <div class="char-modal-romaji">${charData.romaji}</div>
         
         <div style="margin-bottom: 1rem;">
-          <button class="btn-primary btn-sm" id="btn-modal-speak">🔊 Dengarkan</button>
+          <button class="btn-primary btn-sm" id="btn-modal-speak">
+            <i data-lucide="volume-2"></i>
+            Dengarkan
+          </button>
         </div>
 
         <div class="char-modal-info">
@@ -434,6 +446,7 @@
       saveProgress();
       updateProgress();
       renderDayView(CURRICULUM.find(d => d.day === state.currentDay));
+      if (window.lucide) lucide.createIcons();
     });
 
     // Speak button
@@ -449,6 +462,10 @@
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) close();
     });
+    
+    // Initialize Lucide icons for modal
+    if (window.lucide) lucide.createIcons();
+
     document.addEventListener('keydown', function escHandler(e) {
       if (e.key === 'Escape') {
         close();
@@ -858,6 +875,9 @@
     dom.btnStart.addEventListener('click', () => {
       navigateToDay(1);
     });
+
+    // Initialize initial icons
+    if (window.lucide) lucide.createIcons();
 
     // Reset button
     dom.btnReset.addEventListener('click', () => {
