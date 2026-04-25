@@ -67,11 +67,24 @@
 
   // ========== Audio System ==========
   const speak = (text) => {
-    if (!window.speechSynthesis) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 0.8; // A bit slower for learning
-    window.speechSynthesis.speak(utterance);
+    // 1. Try playing high-quality native audio from Google's TTS CDN
+    // Using tw-ob client for stable public access
+    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ja&client=tw-ob`;
+    const audio = new Audio(audioUrl);
+    
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        // 2. Fallback to local SpeechSynthesis if the external audio fails
+        console.warn('Native audio failed, falling back to TTS:', error);
+        if (!window.speechSynthesis) return;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+      });
+    }
   };
 
   // ========== Toast System ==========

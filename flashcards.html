@@ -238,6 +238,19 @@
         const nextBtn = document.getElementById('nextBtn');
         const counter = document.getElementById('counter');
 
+        // Fungsi Audio
+        function speak(text) {
+            const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ja&client=tw-ob`;
+            const audio = new Audio(audioUrl);
+            audio.play().catch(() => {
+                if ('speechSynthesis' in window) {
+                    const msg = new SpeechSynthesisUtterance(text);
+                    msg.lang = 'ja-JP';
+                    window.speechSynthesis.speak(msg);
+                }
+            });
+        }
+
         // Fungsi mengacak kartu
         function nextCard() {
             // Animasi reset flip jika kartu sedang terbuka
@@ -251,6 +264,9 @@
                 displayChar.textContent = data.char;
                 displayRomaji.textContent = data.romaji;
                 
+                // Play audio automatically for new card
+                speak(data.char);
+                
                 // Update counter visual (index + 1)
                 const displayNumber = (randomIndex + 1).toString().padStart(2, '0');
                 counter.textContent = `${displayNumber} / ${hiraganaData.length}`;
@@ -259,7 +275,13 @@
 
         // Event listener klik kartu untuk flip
         card.addEventListener('click', () => {
+            const isFlippingToBack = !card.classList.contains('is-flipped');
             card.classList.toggle('is-flipped');
+            
+            // Play audio when showing the back (romaji) too, for reinforcement
+            if (isFlippingToBack) {
+                speak(displayChar.textContent);
+            }
         });
 
         // Event listener tombol next
