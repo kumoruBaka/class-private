@@ -483,10 +483,10 @@
         width: 150,
         height: 150,
         padding: 5,
-        strokeAnimationSpeed: 1,
-        delayBetweenStrokes: 150,
-        strokeColor: '#9ece6a',
-        outlineColor: '#262c3d'
+        strokeAnimationSpeed: 1.5,
+        delayBetweenStrokes: 180,
+        strokeColor: '#ff4d94', // Neon Sakura
+        outlineColor: '#eee'
       });
       writer.animateCharacter();
     };
