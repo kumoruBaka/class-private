@@ -64,11 +64,11 @@ const CURRICULUM = [
       { char: "く", romaji: "ku", strokes: 1, hint: "Seperti sudut/panah ke kiri" },
       { char: "け", romaji: "ke", strokes: 3, hint: "Seperti pintu terbuka" },
       { char: "こ", romaji: "ko", strokes: 2, hint: "Dua garis horizontal" },
-      { char: "さ", romaji: "sa", strokes: 3, hint: "Seperti wajah tersenyum" },
-      { char: "し", romaji: "shi", strokes: 1, hint: "Seperti kail memancing" },
-      { char: "す", romaji: "su", strokes: 2, hint: "Seperti angka 4 dengan lingkaran" },
-      { char: "せ", romaji: "se", strokes: 3, hint: "Seperti tangan menunjuk" },
-      { char: "そ", romaji: "so", strokes: 1, hint: "Seperti zigzag menurun" }
+      { char: "さ", romaji: "sa", strokes: 3, hint: "Sailling Boat: Tiang kapal dan lambung yang melengkung di air." },
+      { char: "し", romaji: "shi", strokes: 1, hint: "Shipp's Hook: Kail pancing panjang untuk menangkap ikan." },
+      { char: "す", romaji: "su", strokes: 2, hint: "Suwing (Swing): Tali ayunan yang sedang meliuk melingkar." },
+      { char: "せ", romaji: "se", strokes: 3, hint: "Set of Stairs: Seperti tangga atau orang sedang duduk di kursi." },
+      { char: "そ", romaji: "so", strokes: 1, hint: "Songbird: Garis zigzag seperti kepala burung yang bernyanyi." }
     ],
     katakana: [
       { char: "カ", romaji: "ka", strokes: 2, hint: "Seperti pisau" },
@@ -112,11 +112,11 @@ const CURRICULUM = [
       "Menghafal 12 kosakata baru"
     ],
     hiragana: [
-      { char: "た", romaji: "ta", strokes: 4, hint: "Seperti 'ta' dengan palang" },
-      { char: "ち", romaji: "chi", strokes: 2, hint: "Seperti angka 5" },
-      { char: "つ", romaji: "tsu", strokes: 1, hint: "Seperti huruf U berbaring" },
-      { char: "て", romaji: "te", strokes: 1, hint: "Seperti tangan terbuka" },
-      { char: "と", romaji: "to", strokes: 2, hint: "Seperti jari kaki" },
+      { char: "た", romaji: "ta", strokes: 4, hint: "Huruf T dan A: Sisi kiri membentuk 't', sisi kanan membentuk 'a'." },
+      { char: "ち", romaji: "chi", strokes: 2, hint: "Chi-erleader: Seperti pemandu sorak yang melompat di udara." },
+      { char: "つ", romaji: "tsu", strokes: 1, hint: "Tsunami: Ombak besar yang melengkung siap untuk pecah." },
+      { char: "て", romaji: "te", strokes: 1, hint: "Telephone: Gagang telepon lama atau angka Ten (10) miring." },
+      { char: "と", romaji: "to", strokes: 2, hint: "Toe with Splinter: Jempol kaki yang terkena serpihan kayu." },
       { char: "な", romaji: "na", strokes: 4, hint: "Seperti simpul tali" },
       { char: "に", romaji: "ni", strokes: 3, hint: "Seperti wajah dengan senyum" },
       { char: "ぬ", romaji: "nu", strokes: 2, hint: "Seperti pretzel" },
