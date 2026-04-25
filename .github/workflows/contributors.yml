@@ -1,4 +1,3 @@
-# .github/workflows/contributors.yml
 name: Update Contributors
 on:
   push:
@@ -9,6 +8,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Create CONTRIBUTORS.md if not exists
+        run: |
+          if [ ! -f CONTRIBUTORS.md ]; then
+            cat > CONTRIBUTORS.md << 'EOF'
+          # Contributors
+          
+          Makasih buat semua yang udah berkontribusi ke project ini! 🎉
+          
+          <!-- readme: contributors -start -->
+          <!-- readme: contributors -end -->
+          EOF
+          fi
+
       - uses: akhilmhdh/contributors-readme-action@v2.3.6
+        with:
+          readme: CONTRIBUTORS.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
