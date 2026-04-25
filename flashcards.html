@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Hiragana — Minimalis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card-front: #ffffff;
+            --card-back: #fff0f5;
+            --accent: #e8729a; /* Sakura Pink */
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text-sub);
+        }
+
+        /* Flashcard Container */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 320px;
+            height: 420px;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.03);
+            background: var(--card-front);
+            padding: 20px;
+        }
+
+        .card-back {
+            background: var(--card-back);
+            transform: rotateY(180deg);
+        }
+
+        /* Typography */
+        .char {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 8rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-main);
+        }
+
+        .romaji {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+
+        .hint {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .label {
+            position: absolute;
+            top: 25px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #b2bec3;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 50px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-next {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            background: #000;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-next:active {
+            transform: translateY(0);
+        }
+
+        .counter {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Background Deco */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        @media (max-height: 700px) {
+            .flashcard-container { height: 350px; }
+            .char { font-size: 6rem; }
+            .header { margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="header">
+        <h1>Hiragana Flashcard</h1>
+    </div>
+
+    <div class="flashcard-container" id="cardContainer">
+        <div class="flashcard" id="card">
+            <!-- Sisi Depan -->
+            <div class="card-face card-front">
+                <span class="label">Huruf</span>
+                <div class="char" id="displayChar">あ</div>
+            </div>
+            <!-- Sisi Belakang -->
+            <div class="card-face card-back">
+                <span class="label">Bunyi / Romaji</span>
+                <div class="romaji" id="displayRomaji">a</div>
+                <div class="hint" id="displayHint">Klik kartu untuk melihat huruf lagi</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <span class="counter" id="counter">01 / 46</span>
+        <button class="btn-next" id="nextBtn">Next Card</button>
+    </div>
+
+    <script>
+        const hiraganaData = [
+            { char: "あ", romaji: "a" }, { char: "い", romaji: "i" }, { char: "う", romaji: "u" },
+            { char: "え", romaji: "e" }, { char: "お", romaji: "o" }, { char: "か", romaji: "ka" },
+            { char: "き", romaji: "ki" }, { char: "く", romaji: "ku" }, { char: "け", romaji: "ke" },
+            { char: "こ", romaji: "ko" }, { char: "さ", romaji: "sa" }, { char: "し", romaji: "shi" },
+            { char: "す", romaji: "su" }, { char: "せ", romaji: "se" }, { char: "そ", romaji: "so" },
+            { char: "た", romaji: "ta" }, { char: "ち", romaji: "chi" }, { char: "つ", romaji: "tsu" },
+            { char: "て", romaji: "te" }, { char: "と", romaji: "to" }, { char: "な", romaji: "na" },
+            { char: "に", romaji: "ni" }, { char: "ぬ", romaji: "nu" }, { char: "ね", romaji: "ne" },
+            { char: "の", romaji: "no" }, { char: "は", romaji: "ha" }, { char: "ひ", romaji: "hi" },
+            { char: "ふ", romaji: "fu" }, { char: "へ", romaji: "he" }, { char: "ほ", romaji: "ho" },
+            { char: "ま", romaji: "ma" }, { char: "み", romaji: "mi" }, { char: "む", romaji: "mu" },
+            { char: "め", romaji: "me" }, { char: "も", romaji: "mo" }, { char: "や", romaji: "ya" },
+            { char: "ゆ", romaji: "yu" }, { char: "よ", romaji: "yo" }, { char: "ら", romaji: "ra" },
+            { char: "り", romaji: "ri" }, { char: "る", romaji: "ru" }, { char: "れ", romaji: "re" },
+            { char: "ろ", romaji: "ro" }, { char: "わ", romaji: "wa" }, { char: "を", romaji: "wo" },
+            { char: "ん", romaji: "n" }
+        ];
+
+        let currentIndex = 0;
+        const card = document.getElementById('card');
+        const displayChar = document.getElementById('displayChar');
+        const displayRomaji = document.getElementById('displayRomaji');
+        const nextBtn = document.getElementById('nextBtn');
+        const counter = document.getElementById('counter');
+
+        // Fungsi mengacak kartu
+        function nextCard() {
+            // Animasi reset flip jika kartu sedang terbuka
+            card.classList.remove('is-flipped');
+            
+            // Tunggu sebentar agar animasi balik selesai sebelum ganti isi
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * hiraganaData.length);
+                const data = hiraganaData[randomIndex];
+                
+                displayChar.textContent = data.char;
+                displayRomaji.textContent = data.romaji;
+                
+                // Update counter visual (index + 1)
+                const displayNumber = (randomIndex + 1).toString().padStart(2, '0');
+                counter.textContent = `${displayNumber} / ${hiraganaData.length}`;
+            }, 150);
+        }
+
+        // Event listener klik kartu untuk flip
+        card.addEventListener('click', () => {
+            card.classList.toggle('is-flipped');
+        });
+
+        // Event listener tombol next
+        nextBtn.addEventListener('click', nextCard);
+
+        // Inisialisasi awal
+        nextCard();
+    </script>
+</body>
+</html>
