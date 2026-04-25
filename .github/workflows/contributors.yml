@@ -1,33 +1,78 @@
 name: Update Contributors
 on:
   push:
-    branches: [main, master] # Mendukung main dan master sekaligus
+    branches: [ master ]
+
+permissions:
+  contents: write
 
 jobs:
-  update:
+  contributors:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # IZIN KRUSIAL: Agar bot bisa commit balik ke repo
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Ambil semua history agar kontributor terdeteksi
+      - uses: actions/checkout@v4
 
-      - name: Create CONTRIBUTORS.md if not exists
-        run: |
-          if [ ! -f CONTRIBUTORS.md ]; then
-            cat > CONTRIBUTORS.md << 'EOF'
-          # Contributors
-          
-          Makasih buat semua yang udah berkontribusi ke project ini! 🎉
-          
-          <!-- readme: contributors -start -->
-          <!-- readme: contributors -end -->
-          EOF
-          fi
-
-      - uses: akhilmhdh/contributors-readme-action@v2.3.6
+      - name: Generate contributors with commit count
+        uses: actions/github-script@v7
         with:
-          readme: CONTRIBUTORS.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            let contributors = [];
+            let page = 1;
+            while (true) {
+              const { data } = await github.rest.repos.listContributors({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page,
+              });
+              if (data.length === 0) break;
+              contributors.push(...data);
+              page++;
+            }
+
+            const filtered = contributors
+              .filter(c => c.type !== 'Bot')
+              .sort((a, b) => b.contributions - a.contributions);
+
+            const total = filtered.reduce((sum, c) => sum + c.contributions, 0);
+            const lastUpdated = new Date().toISOString().split('T')[0];
+
+            const rows = filtered.map((c, i) => {
+              const cell = `
+              <td align="center">
+                <a href="${c.html_url}">
+                  <img src="${c.avatar_url}&s=80" width="80" height="80" alt="${c.login}" style="border-radius: 50%;" />
+                  <br />
+                  <sub><b>${c.login}</b></sub>
+                  <br />
+                  <sub>🔨 ${c.contributions} commits</sub>
+                </a>
+              </td>`;
+              return (i + 1) % 6 === 0 ? cell + '\n  </tr>\n  <tr>' : cell;
+            }).join('\n');
+
+            const summary = `> 🔢 Total commits: <b>${total}</b> &nbsp;|&nbsp; 👥 Contributors: <b>${filtered.length}</b> &nbsp;|&nbsp; 🗓️ Updated: <b>${lastUpdated}</b>`;
+
+            const content = [
+              '# Contributors',
+              '',
+              'Thanks to everyone who has contributed! 🎉',
+              '',
+              summary,
+              '',
+              '<table>',
+              '  <tr>',
+              rows,
+              '  </tr>',
+              '</table>',
+            ].join('\n');
+
+            fs.writeFileSync('CONTRIBUTORS.md', content);
+            console.log(`Written ${filtered.length} contributors, ${total} total commits`);
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update contributors"
