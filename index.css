@@ -764,6 +764,59 @@ body {
   border-color: rgba(139, 92, 246, 0.3);
   box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
 }
+
+/* Mastered state */
+.char-card.mastered {
+  background: rgba(52, 211, 153, 0.05);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+.master-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  background: var(--success);
+  color: var(--bg-deep);
+  border-radius: 50%;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  z-index: 5;
+}
+
+/* Voice Button */
+.btn-voice {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: all var(--duration-fast);
+  z-index: 10;
+}
+.char-card:hover .btn-voice {
+  opacity: 1;
+  transform: translateY(0);
+}
+.btn-voice:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
 .char-main {
   font-family: var(--font-jp);
   font-size: 2.2rem;
@@ -876,6 +929,23 @@ body {
   color: var(--text-primary);
   font-weight: 600;
 }
+
+/* Mastery Switch/Toggle in Modal */
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.switch-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+input[type="checkbox"]:checked + .switch-label {
+  color: var(--success);
+}
+
 .char-modal-hint {
   margin-top: 1rem;
   padding: 0.75rem 1rem;

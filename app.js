@@ -13,6 +13,7 @@
     currentView: 'landing',   // 'landing' | 'day' | 'quiz' | 'writing'
     currentDay: null,          // 1-7
     completedDays: new Set(),
+    masteredChars: new Set(), // Track individual mastered characters
     quizState: null,
     writingState: null,
   };
@@ -50,6 +51,7 @@
       if (raw) {
         const data = JSON.parse(raw);
         state.completedDays = new Set(data.completedDays || []);
+        state.masteredChars = new Set(data.masteredChars || []);
       }
     } catch { /* ignore */ }
   };
@@ -58,8 +60,18 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         completedDays: [...state.completedDays],
+        masteredChars: [...state.masteredChars],
       }));
     } catch { /* ignore */ }
+  };
+
+  // ========== Audio System ==========
+  const speak = (text) => {
+    if (!window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ja-JP';
+    utterance.rate = 0.8; // A bit slower for learning
+    window.speechSynthesis.speak(utterance);
   };
 
   // ========== Toast System ==========
@@ -228,13 +240,17 @@
             Hiragana
           </h2>
           <div class="char-grid" id="hiragana-grid-${data.day}">
-            ${data.hiragana.map((h, i) => `
-              <div class="char-card hiragana" data-type="hiragana" data-index="${i}" data-day="${data.day}">
+            ${data.hiragana.map((h, i) => {
+              const isMastered = state.masteredChars.has(h.char);
+              return `
+              <div class="char-card hiragana ${isMastered ? 'mastered' : ''}" data-type="hiragana" data-index="${i}" data-day="${data.day}" data-char="${h.char}">
+                ${isMastered ? '<div class="master-badge">✓</div>' : ''}
                 <div class="char-main">${h.char}</div>
                 <div class="char-romaji">${h.romaji}</div>
-                ${h.strokes > 0 ? `<div class="char-strokes">${h.strokes} goresan</div>` : ''}
+                <button class="btn-voice" title="Dengarkan Suara">🔊</button>
               </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
 
@@ -245,13 +261,17 @@
             Katakana
           </h2>
           <div class="char-grid" id="katakana-grid-${data.day}">
-            ${data.katakana.map((k, i) => `
-              <div class="char-card katakana" data-type="katakana" data-index="${i}" data-day="${data.day}">
+            ${data.katakana.map((k, i) => {
+              const isMastered = state.masteredChars.has(k.char);
+              return `
+              <div class="char-card katakana ${isMastered ? 'mastered' : ''}" data-type="katakana" data-index="${i}" data-day="${data.day}" data-char="${k.char}">
+                ${isMastered ? '<div class="master-badge">✓</div>' : ''}
                 <div class="char-main">${k.char}</div>
                 <div class="char-romaji">${k.romaji}</div>
-                ${k.strokes > 0 ? `<div class="char-strokes">${k.strokes} goresan</div>` : ''}
+                <button class="btn-voice" title="Dengarkan Suara">🔊</button>
               </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
 
@@ -301,14 +321,26 @@
   const bindDayViewEvents = (data) => {
     // Char card click → modal
     $$('.char-card', dom.viewDay).forEach(card => {
-      card.addEventListener('click', () => {
-        const type = card.dataset.type;
-        const index = parseInt(card.dataset.index);
-        const dayNum = parseInt(card.dataset.day);
-        const dayData = CURRICULUM.find(d => d.day === dayNum);
-        const charData = type === 'hiragana' ? dayData.hiragana[index] : dayData.katakana[index];
+      const type = card.dataset.type;
+      const index = parseInt(card.dataset.index);
+      const dayNum = parseInt(card.dataset.day);
+      const dayData = CURRICULUM.find(d => d.day === dayNum);
+      const charData = type === 'hiragana' ? dayData.hiragana[index] : dayData.katakana[index];
+
+      // Click for modal
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-voice')) return; // ignore if voice btn clicked
         openCharModal(charData, type);
       });
+
+      // Voice btn
+      const voiceBtn = $('.btn-voice', card);
+      if (voiceBtn) {
+        voiceBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          speak(charData.char);
+        });
+      }
     });
 
     // Quiz button
@@ -344,6 +376,7 @@
 
   // ========== Character Modal ==========
   const openCharModal = (charData, type) => {
+    const isMastered = state.masteredChars.has(charData.char);
     const overlay = document.createElement('div');
     overlay.className = 'char-modal-overlay';
     overlay.innerHTML = `
@@ -351,24 +384,48 @@
         <button class="char-modal-close">✕</button>
         <div class="char-modal-char ${type}">${charData.char}</div>
         <div class="char-modal-romaji">${charData.romaji}</div>
+        
+        <div style="margin-bottom: 1rem;">
+          <button class="btn-primary btn-sm" id="btn-modal-speak">🔊 Dengarkan</button>
+        </div>
+
         <div class="char-modal-info">
           <div class="char-modal-row">
-            <span class="char-modal-label">Tipe</span>
-            <span class="char-modal-value">${type === 'hiragana' ? 'Hiragana ひらがな' : 'Katakana カタカナ'}</span>
+            <span class="char-modal-label">Kuasai Huruf Ini?</span>
+            <label class="switch-container">
+              <input type="checkbox" id="check-mastery" ${isMastered ? 'checked' : ''}>
+              <span class="switch-label">${isMastered ? 'Sudah Dikuasai ✓' : 'Belum Dikuasai'}</span>
+            </label>
           </div>
-          ${charData.strokes > 0 ? `
           <div class="char-modal-row">
-            <span class="char-modal-label">Jumlah Goresan</span>
-            <span class="char-modal-value">${charData.strokes} stroke${charData.strokes > 1 ? 's' : ''}</span>
+            <span class="char-modal-label">Tipe</span>
+            <span class="char-modal-value">${type === 'hiragana' ? 'Hiragana' : 'Katakana'}</span>
           </div>
-          ` : ''}
         </div>
         <div class="char-modal-hint">
-          <strong>💡 Tips Menghafal:</strong><br>${charData.hint}
+          <strong>💡 Tips:</strong><br>${charData.hint}
         </div>
       </div>
     `;
     document.body.appendChild(overlay);
+
+    // Mastery toggle
+    const masteryCheck = $('#check-mastery', overlay);
+    masteryCheck.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        state.masteredChars.add(charData.char);
+        $('.switch-label', overlay).textContent = 'Sudah Dikuasai ✓';
+      } else {
+        state.masteredChars.delete(charData.char);
+        $('.switch-label', overlay).textContent = 'Belum Dikuasai';
+      }
+      saveProgress();
+      updateProgress();
+      renderDayView(CURRICULUM.find(d => d.day === state.currentDay));
+    });
+
+    // Speak button
+    $('#btn-modal-speak', overlay).addEventListener('click', () => speak(charData.char));
 
     // Close events
     const close = () => {
