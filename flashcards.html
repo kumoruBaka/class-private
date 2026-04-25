@@ -240,10 +240,11 @@
 
         // Fungsi Audio
         function speak(text) {
-            const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ja&client=tw-ob`;
+            const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=jap`;
             const audio = new Audio(audioUrl);
             audio.play().catch(() => {
                 if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
                     const msg = new SpeechSynthesisUtterance(text);
                     msg.lang = 'ja-JP';
                     window.speechSynthesis.speak(msg);

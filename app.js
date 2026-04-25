@@ -67,24 +67,23 @@
 
   // ========== Audio System ==========
   const speak = (text) => {
-    // 1. Try playing high-quality native audio from Google's TTS CDN
-    // Using tw-ob client for stable public access
-    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ja&client=tw-ob`;
+    // Switching to Youdao TTS which is generally more stable for short Japanese clips
+    const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=jap`;
     const audio = new Audio(audioUrl);
     
-    const playPromise = audio.play();
-
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        // 2. Fallback to local SpeechSynthesis if the external audio fails
-        console.warn('Native audio failed, falling back to TTS:', error);
-        if (!window.speechSynthesis) return;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP';
-        utterance.rate = 0.8;
-        window.speechSynthesis.speak(utterance);
-      });
-    }
+    audio.play().catch(error => {
+      // Fallback to local SpeechSynthesis if the external audio fails (e.g. 404 or No Internet)
+      console.warn('External audio failed, falling back to TTS:', error);
+      if (!window.speechSynthesis) return;
+      
+      // Cancel any ongoing speech to avoid overlap
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    });
   };
 
   // ========== Toast System ==========
