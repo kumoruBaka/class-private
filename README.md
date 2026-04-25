@@ -48,4 +48,4 @@ Sebuah aplikasi web interaktif premium yang dirancang untuk membantu pemula meng
 
 ---
 
-*Dibuat dengan presisi oleh Antigravity (Vanilla).*
+## Contributors
