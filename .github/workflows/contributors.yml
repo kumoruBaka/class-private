@@ -1,13 +1,17 @@
 name: Update Contributors
 on:
   push:
-    branches: [master]
+    branches: [main, master] # Mendukung main dan master sekaligus
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # IZIN KRUSIAL: Agar bot bisa commit balik ke repo
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ambil semua history agar kontributor terdeteksi
 
       - name: Create CONTRIBUTORS.md if not exists
         run: |
